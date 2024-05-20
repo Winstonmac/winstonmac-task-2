@@ -1,0 +1,101 @@
+import csv
+import matplotlib.pyplot as plt
+from tkinter import filedialog, Tk
+
+class Point:
+    """
+    A class to represent a point in 2D space.
+
+    Attributes:
+    - x (float): The x-coordinate of the point.
+    - y (float): The y-coordinate of the point.
+    """
+
+    def __init__(self, x, y):
+        """
+        Initializes a Point object with given x and y coordinates.
+
+        Args:
+        - x (float): The x-coordinate of the point.
+        - y (float): The y-coordinate of the point.
+        """
+        self.x = x
+        self.y = y
+
+    def translate(self, dx, dy):
+        """
+        Translates the point by dx units along the x-axis and dy units along the y-axis.
+
+        Args:
+        - dx (float): The amount to translate the point along the x-axis.
+        - dy (float): The amount to translate the point along the y-axis.
+        """
+        self.x += dx
+        self.y += dy
+
+def plot_points(points_list, colors_list):
+    """
+    Plots the given points on a scatterplot.
+
+    Args:
+    - points_list (list of lists of Point): The list of lists of points to plot.
+    - colors_list (list of str): The list of colors corresponding to each list of points.
+    """
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('Scatter Plot of Points')
+    plt.grid(True)
+    plt.gca().set_aspect('equal', adjustable='box')
+    
+    for points, color in zip(points_list, colors_list):
+        x_values = [point.x for point in points]
+        y_values = [point.y for point in points]
+        plt.scatter(x_values, y_values, color=color)
+
+    plt.show()
+
+def read_points_from_csv(file_path):
+    """
+    Reads points from a CSV file.
+
+    Args:
+    - file_path (str): The path to the CSV file containing points.
+
+    Returns:
+    - list of Point: The list of points read from the file.
+    """
+    points = []
+    try:
+        with open(file_path, 'r') as file:
+            csv_reader = csv.reader(file)
+            next(csv_reader)  # Skip header
+            for row in csv_reader:
+                x, y = map(float, row)
+                points.append(Point(x, y))
+    except FileNotFoundError:
+        print("File not found.")
+    return points
+
+def main():
+    # Create a Tkinter root window
+    root = Tk()
+    root.withdraw()  # Hide the root window
+
+    # Ask the user to select the CSV file
+    file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+
+    if file_path:
+        # Step 1: Read points from the selected CSV file
+        points = read_points_from_csv(file_path)
+
+        if points:
+            # Step 2: Translate the points
+            dx = 5  # Translate by 5 units along x-axis
+            dy = 3  # Translate by 3 units along y-axis
+            translated_points = [Point(point.x + dx, point.y + dy) for point in points]
+
+            # Step 3: Plot the original points (blue) and translated points (red) in one graph
+            plot_points([points, translated_points], ['blue', 'red'])
+
+if __name__ == "__main__":
+    main()
